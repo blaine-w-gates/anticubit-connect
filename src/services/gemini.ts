@@ -1,5 +1,4 @@
-import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
-import { TaskItem } from '@/services/storage';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const MIN_DELAY_MS = 2000;
 let lastCallTime = 0;
@@ -22,77 +21,11 @@ export const GemininService = {
             const waitTime = MIN_DELAY_MS - timeSinceLastCall;
             await new Promise(resolve => setTimeout(resolve, waitTime));
         }
-
         lastCallTime = Date.now();
     },
 
     /**
-     * Loose VTT Parser: Extracts timestamps and text without external libraries.
-     */
-    parseVTT(rawVtt: string): VttCue[] {
-        const lines = rawVtt.split(/\r?\n/);
-        const cues: VttCue[] = [];
-
-        let currentStart: number | null = null;
-        let currentEnd: number | null = null;
-        let currentText: string[] = [];
-
-        // Regex for "00:00:00.000 --> 00:00:05.000" or "00:00.000"
-        const timeRegex = /((?:\d{2}:)?\d{2}:\d{2}\.\d{3})\s-->\s((?:\d{2}:)?\d{2}:\d{2}\.\d{3})/;
-
-        const parseTime = (timeStr: string): number => {
-            const parts = timeStr.split(':');
-            let seconds = 0;
-            if (parts.length === 3) {
-                seconds += parseInt(parts[0]) * 3600;
-                seconds += parseInt(parts[1]) * 60;
-                seconds += parseFloat(parts[2]);
-            } else if (parts.length === 2) {
-                seconds += parseInt(parts[0]) * 60;
-                seconds += parseFloat(parts[1]);
-            }
-            return seconds;
-        };
-
-        lines.forEach(line => {
-            // Clean signature / headers
-            if (line.startsWith('WEBVTT') || line.trim() === '') return;
-
-            const timeMatch = line.match(timeRegex);
-            if (timeMatch) {
-                // If we have a previous cue building, push it
-                if (currentStart !== null && currentEnd !== null && currentText.length > 0) {
-                    cues.push({
-                        start: currentStart,
-                        end: currentEnd,
-                        text: currentText.join(' ').trim()
-                    });
-                }
-
-                // Start new cue
-                currentStart = parseTime(timeMatch[1]);
-                currentEnd = parseTime(timeMatch[2]);
-                currentText = [];
-            } else if (currentStart !== null) {
-                // Just text content
-                currentText.push(line.trim());
-            }
-        });
-
-        // Push final cue
-        if (currentStart !== null && currentEnd !== null && currentText.length > 0) {
-            cues.push({
-                start: currentStart,
-                end: currentEnd,
-                text: currentText.join(' ').trim()
-            });
-        }
-
-        return cues;
-    },
-
-    /**
-     * JSON Sanitizer: Strips Markdown fences to prevent JSON.parse crashes.
+     * JSON Sanitizer
      */
     cleanJson(text: string): string {
         return text.replace(/```json/g, '').replace(/```/g, '').trim();
@@ -104,7 +37,7 @@ export const GemininService = {
     async analyzeTranscript(
         apiKey: string,
         transcriptText: string,
-        modelName: string = "gemini-1.5-flash-001"
+        modelName: string = "gemini-1.5-flash-001" // <--- CRITICAL FIX
     ): Promise<any> {
         await this.enforceRateLimit();
 
@@ -120,14 +53,13 @@ export const GemininService = {
       Format: [{ "task_name": "...", "timestamp_seconds": 12.5, "description": "..." }]
 
       TRANSCRIPT:
-      ${transcriptText.substring(0, 30000)} // Safety cap for tokens
+      ${transcriptText.substring(0, 30000)}
     `;
 
         try {
             const result = await model.generateContent(prompt);
             const response = result.response;
 
-            // Safety Handler
             if (response.promptFeedback?.blockReason) {
                 console.warn("Gemini Safety Block:", response.promptFeedback);
                 return [{
@@ -147,7 +79,7 @@ export const GemininService = {
                 return tasks.map((t: any) => ({
                     ...t,
                     id: crypto.randomUUID(),
-                    screenshot_base64: "" // Placeholder
+                    screenshot_base64: ""
                 }));
             } catch (parseError) {
                 console.error("JSON Parse Fail:", text);
@@ -160,6 +92,9 @@ export const GemininService = {
         }
     },
 
+    /**
+     * Cubit Generation
+     */
     async generateSubSteps(
         apiKey: string,
         taskName: string,
@@ -168,7 +103,7 @@ export const GemininService = {
         await this.enforceRateLimit();
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-001" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-001" }); // <--- CRITICAL FIX
 
         const prompt = `
       TASK: "${taskName}"
