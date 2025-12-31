@@ -9,8 +9,6 @@ export default function SettingsDialog() {
     const [isValidating, setIsValidating] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // If apiKey exists in store, we don't show the modal (unless we add a "re-open" feature later)
-    // The requirements say: "If null, show the dialog (cannot be closed)."
     if (apiKey) return null;
 
     const handleSave = async () => {
@@ -23,9 +21,10 @@ export default function SettingsDialog() {
         setError(null);
 
         try {
-            // Validation: Call with dummy text
-            await GemininService.analyzeTranscript(inputKey, "Hello world", "gemini-1.5-flash");
-            // If no error thrown, it's valid
+            // FIX: Removed the 3rd argument ("gemini-1.5-flash")
+            // This forces it to use the default "gemini-1.5-flash-001" from the service
+            await GemininService.analyzeTranscript(inputKey, "Hello world");
+
             setApiKey(inputKey);
         } catch (err) {
             console.error("API Key Validation Failed:", err);
