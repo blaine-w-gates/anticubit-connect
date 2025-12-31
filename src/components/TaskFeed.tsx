@@ -1,7 +1,7 @@
 import { Virtuoso } from 'react-virtuoso';
 import { TaskItem } from '@/services/storage';
 import { useAppStore } from '@/store/useAppStore';
-import { format } from 'date-fns'; // We might not have date-fns, so I'll use simple helper
+
 import { ChevronDown, ChevronRight, Wand2 } from 'lucide-react';
 import { useState } from 'react';
 import Image from 'next/image';
