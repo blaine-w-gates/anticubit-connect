@@ -104,7 +104,7 @@ export const GemininService = {
     async analyzeTranscript(
         apiKey: string,
         transcriptText: string,
-        modelName: string = "gemini-1.5-flash"
+        modelName: string = "gemini-1.5-flash-001"
     ): Promise<any> {
         await this.enforceRateLimit();
 
@@ -168,7 +168,7 @@ export const GemininService = {
         await this.enforceRateLimit();
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-001" });
 
         const prompt = `
       TASK: "${taskName}"
