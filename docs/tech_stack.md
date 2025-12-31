@@ -1,0 +1,8 @@
+- **Framework:** Next.js 14 (App Router)
+- **Deployment:** `output: 'export'`, `images: { unoptimized: true }`
+- **State Management:** Zustand (for complex queue management)
+- **Storage:** `idb-keyval` (IndexedDB wrapper)
+- **Styling:** Tailwind CSS (Mobile-first)
+- **Video:** HTML5 Video API + Canvas
+- **Performance:** `react-virtuoso` (for virtualized lists)
+- **Utils:** Regex for VTT (No strict parser libs).
