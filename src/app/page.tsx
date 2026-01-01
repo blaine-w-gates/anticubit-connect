@@ -18,6 +18,7 @@ export default function Home() {
     loadProject,
     saveTask,
     resetProject,
+    fullLogout,
     hasVideoHandle,
     setVideoHandleState
   } = useAppStore();
