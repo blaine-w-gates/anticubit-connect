@@ -33,3 +33,6 @@ This file tracks the active plan and phase of the Cubit Connect project.
 ## Phase 4: Deployment Prep
 - [x] Fix `page.tsx` syntax error.
 - [x] Run full build check.
+- [x] Fix `date-fns` build error.
+- [x] Fix Gemini Model Name (404 Error) - Upgrading to `gemini-1.5-flash-002` (v2.0 was 429).
+- [ ] Verify with provided API Key - Listing models to confirm access.
